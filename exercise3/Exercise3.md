@@ -11,4 +11,12 @@ In total, there's 0.25 cache miss in the innermost loop after each iteration
     Access to the elements in matrix a and c are done collumn-wise, which will lead to a cache miss on every iteration. The total cache miss of each iteration in the innermost loop is 2
 
     
-   
+   b. 
+   c. ?
+
+
+2. Matrix multiplation with cache blocking
+   a. 
+   b. A block size should has 4 values for L1 (4x8=32) and 128 for L2(128x8=1024)
+
+3. 
