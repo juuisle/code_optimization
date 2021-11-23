@@ -66,10 +66,11 @@ In order to verify the good computations of the 2 new implementation of the matr
 
 An L1 cache has 32KB = 32000 Byte 
 Best blocksize <= sqrt(caches/3)
-A block size should be 100 for L1 and 500 for L2 caches with 1024KB
+A block size should be <100 for L1 and <500 for L2 caches with 1024KB
 
 ##### c. Test and determine best block size
-
+The best value tested was 40, that executed in 28.56 seconds with -O3 flag. The test was done 
+using Macbook Pro 14 inch 2021.
 
 ### Question N°3
 
