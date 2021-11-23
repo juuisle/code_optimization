@@ -124,11 +124,18 @@ void matrixmult_jki(double **A, double **B, double **C, const int N)
   }
 }
 
-void matrixreset(double **M, const int N)
+
+void compareMatrices(double **M1, double **M2, size);
 {
+  int same = 1;
   for(int i = 0; i < N; i++)
     for(int j = 0; j < N; j++)
-      M[i][j] = 0;
+      same = (M1[i][j] != M2[i][j]) ? 0 : 1;
+
+  if (same != 1)
+    printf(" Different.\n");
+  else
+    printf(" Identical.\n");
 }
 
 
@@ -144,7 +151,9 @@ int main(int argc, char** argv)
   // Allocate the matrices
   double **A = allocate_matrix(size, size);
   double **B = allocate_matrix(size, size);
-  double **C = allocate_matrix(size, size);
+  double **Cijk = allocate_matrix(size, size);
+  double **Cikj = allocate_matrix(size, size);
+  double **Cjki = allocate_matrix(size, size);
   printf("Allocated matrices of size %d\n\n", size);
 
   // Initialize the matrices with some values
@@ -160,39 +169,34 @@ int main(int argc, char** argv)
 
   // Test (i, j, k) order algorithm
   start1 = clock();                                   // Start measuring time
-  matrixmult_ijk(A, B, C, size);                      // Do the matrix multiplication
+  matrixmult_ijk(A, B, Cijk, size);                   // Do the matrix multiplication
   float time = ((clock() - start1) / 1000000.0);      // Compute time
   printf("IJK: Time for matrix multiplication %6.2f seconds\n", time);
-  // Reset matrix C
-  matrixreset(C, size);
+  fwrite_matrix(Cijk, 10, 10, "resultIJK.txt", time);
 
   // Test (i, k, j) order algorithm
   start2 = clock();                                   // Start measuring time
-  matrixmult_ikj(A, B, C, size);                      // Do the matrix multiplication
-  time = ((clock() - start2) / 1000000.0);      // Compute time
+  matrixmult_ikj(A, B, Cikj, size);                   // Do the matrix multiplication
+  time = ((clock() - start2) / 1000000.0);            // Compute time
   printf("IKJ: Time for matrix multiplication %6.2f seconds\n", time);
-  // Reset matrix C
-  matrixreset(C, size);
+  fwrite_matrix(Cikj, 10, 10, "resultIKJ.txt", time);
 
   // Test (j, k, i) order algorithm
   start3 = clock();                                   // Start measuring time
-  matrixmult_jki(A, B, C, size);                      // Do the matrix multiplication
-  time = ((clock() - start3) / 1000000.0);      // Compute time
+  matrixmult_jki(A, B, Cjki, size);                   // Do the matrix multiplication
+  time = ((clock() - start3) / 1000000.0);            // Compute time
   printf("JKI: Time for matrix multiplication %6.2f seconds\n", time);
+  fwrite_matrix(Cjki, 10, 10, "resultJKI.txt", time);
 
-  /*
-  printf("Matrix A:\n");
-  print_matrix(A, size, size, 10);
-
-  printf("Matrix B:\n");
-  print_matrix(B, size, size, 10);
-  */
-
+  // Print shortened result
   printf("Matrix C:\n");
-  print_matrix(C, size, size, 10);
+  print_matrix(Cijk, size, size, 10);
 
-  // Write the result to a file
-  fwrite_matrix(C, size, size, "result.txt", time);
+  // Verify results (need to do that once)
+/*  printf("Compare IJK and IKJ matrices: ");
+  compareMatrices(Cijk, Cikj, size);
+  printf("Compare IJK and JKI matrices: ");
+  compareMatrices(Cijk, Cjki, size);*/
 
   free_matrix(A); free_matrix(B); free_matrix(C);
   exit(0);
