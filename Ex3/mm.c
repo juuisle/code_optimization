@@ -58,7 +58,7 @@ int fwrite_matrix(double **M, const int rows, const int cols, char *fn, float ti
   for (int i = 0; i < rows; i++)
   {
       for (int j = 0; j < cols; j++)
-	     fprintf(fp, "%.1f ", M[i][j]);
+       fprintf(fp, "%.1f ", M[i][j]);
       fprintf(fp, "\n");
   }
   fclose(fp);  /* Close the file */
@@ -73,7 +73,7 @@ int fwrite_matrix(double **M, const int rows, const int cols, char *fn, float ti
     for (int i = 0; i < r; i++)
     {
       for (int j = 0; j < c; j++)
-	      printf("%3.1f ", M[i][j]);
+        printf("%3.1f ", M[i][j]);
       printf("\n");
     }
   }
@@ -117,20 +117,19 @@ void matrixmult_jki(double **A, double **B, double **C, const int N)
   {
     for(int k = 0; k < N; k++)
     {
-      double r = B[i][k];
+      double r = B[k][j];
       for(int i = 0; i < N; i++)
         C[i][j] += A[i][k] * r;
     }
   }
 }
 
-void matrixreset(double **M)
+void matrixreset(double **M, const int N)
 {
   for(int i = 0; i < N; i++)
     for(int j = 0; j < N; j++)
       M[i][j] = 0;
 }
-
 
 
 int main(int argc, char** argv)
@@ -153,9 +152,9 @@ int main(int argc, char** argv)
   {
     for (int j = 0; j < size; j++)
     {
-    	A[i][j] = (double) i;
-    	B[i][j] = (double) j;
-    	C[i][j] = 0.0;
+      A[i][j] = (double) i;
+      B[i][j] = (double) j;
+      C[i][j] = 0.0;
     }
   }
 
@@ -165,20 +164,20 @@ int main(int argc, char** argv)
   float time = ((clock() - start1) / 1000000.0);      // Compute time
   printf("IJK: Time for matrix multiplication %6.2f seconds\n", time);
   // Reset matrix C
-  matrixreset(C);
+  matrixreset(C, size);
 
   // Test (i, k, j) order algorithm
   start2 = clock();                                   // Start measuring time
   matrixmult_ikj(A, B, C, size);                      // Do the matrix multiplication
-  float time = ((clock() - start2) / 1000000.0);      // Compute time
+  time = ((clock() - start2) / 1000000.0);      // Compute time
   printf("IKJ: Time for matrix multiplication %6.2f seconds\n", time);
   // Reset matrix C
-  matrixreset(C);
+  matrixreset(C, size);
 
   // Test (j, k, i) order algorithm
   start3 = clock();                                   // Start measuring time
   matrixmult_jki(A, B, C, size);                      // Do the matrix multiplication
-  float time = ((clock() - start3) / 1000000.0);      // Compute time
+  time = ((clock() - start3) / 1000000.0);      // Compute time
   printf("JKI: Time for matrix multiplication %6.2f seconds\n", time);
 
   /*
