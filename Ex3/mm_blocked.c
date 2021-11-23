@@ -114,7 +114,7 @@ void matrixreset(double **M, const int N)
 int main(int argc, char** argv)
 {
   int size = 4000;          // Default matrix size is 1000*1000
-  int blocksize = 200;
+  int blocksize = 40;
   clock_t start1, start2, start3;
 
   // Check if a matrix size is given on the command line
