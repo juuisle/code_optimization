@@ -1,5 +1,5 @@
-matrix: matrix.c 
-	gcc -o matrix.exe -O3 matrix.c 
+matrix: mm.c 
+	gcc -o matrix.exe -O3 mm.c 
 
 run: matrix.exe
 	./matrix.exe
