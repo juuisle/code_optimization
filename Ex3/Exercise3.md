@@ -73,4 +73,5 @@ The best value tested was 40, that executed in 28.56 seconds with -O3 flag. The 
 using Macbook Pro 14 inch 2021.
 
 ### Question N°3
+The best performance order is IKJ, With blocksize of 40, the performance is high, it took 11.15 seconds to run the algorithm. The test was done using the same machine as in execise 2. 
 
