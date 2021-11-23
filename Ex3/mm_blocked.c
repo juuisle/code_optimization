@@ -78,8 +78,8 @@ int fwrite_matrix(double **M, const int rows, const int cols, char *fn, float ti
     }
   }
 
-
-void matrixmult_blocked(double **A, double **B, double **C, const int N, const int blocksize)
+// Matrixmult_blocked order (i, j, k)
+void matrixmult_blocked_ijk(double **A, double **B, double **C, const int N, const int blocksize)
 {
   for (int i=0; i<N; i+=blocksize) 
   {
@@ -97,6 +97,54 @@ void matrixmult_blocked(double **A, double **B, double **C, const int N, const i
               sum += A[ii][kk]*B[kk][jj];
             }
             C[ii][jj] += sum;
+          }
+        }
+    }
+  }
+}
+
+// Matrixmult_blocked order (i, k, j)
+void matrixmult_blocked_ikj(double **A, double **B, double **C, const int N, const int blocksize)
+{
+  for (int i=0; i<N; i+=blocksize) 
+  {
+    for (int k=0; k<N; k+=blocksize)
+    {
+      for (int j=0; j<N; j+=blocksize)
+
+        for (int ii=i; ii<i+blocksize; ii++)
+        {
+          for (int kk=k; kk<k+blocksize; kk++)
+          {
+            double r = A[ii][kk];
+            for (int jj=j; jj<j+blocksize; jj++)
+            {
+              C[ii][jj] += r*B[kk][jj];
+            }
+          }
+        }
+    }
+  }
+}
+
+// Matrixmult_blocked order (j, k, i)
+void matrixmult_blocked_jki(double **A, double **B, double **C, const int N, const int blocksize)
+{
+  for (int j=0;  j<N;  j+=blocksize) 
+  {
+    for (int k=0; k<N; k+=blocksize)
+    {
+      for (int i=0; i<N; i+=blocksize)
+
+        for (int jj=j; jj<j+blocksize; jj++)
+        {
+          for (int kk=k; kk<k+blocksize; kk++)
+          {
+            double r = B[kk][jj];
+            for (int ii=i; ii<i+blocksize; ii++)
+            {
+              C[ii][jj] += A[ii][kk] * r;
+            }
           }
         }
     }
@@ -140,25 +188,25 @@ int main(int argc, char** argv)
 
   // Test matrix multiplication blocked algorithm (i, j, k)
   start1 = clock();                                   // Start measuring time
-  matrixmult_blocked(A, B, C, size, blocksize);       // Do the matrix multiplication
+  matrixmult_blocked_ijk(A, B, C, size, blocksize);       // Do the matrix multiplication
   float time = ((clock() - start1) / 1000000.0);      // Compute time
   printf("IJK Blocked: Time for matrix multiplication %6.2f seconds\n", time);
   // Reset matrix C
   matrixreset(C, size);
 
-  // // Test (i, k, j) order algorithm
-  // start2 = clock();                                   // Start measuring time
-  // matrixmult_ikj(A, B, C, size);                      // Do the matrix multiplication
-  // time = ((clock() - start2) / 1000000.0);      // Compute time
-  // printf("IKJ: Time for matrix multiplication %6.2f seconds\n", time);
-  // // Reset matrix C
-  // matrixreset(C, size);
+  // Test (i, k, j) order algorithm
+  start2 = clock();                                   // Start measuring time
+  matrixmult_blocked_ikj(A, B, C, size, blocksize);                      // Do the matrix multiplication
+  time = ((clock() - start2) / 1000000.0);      // Compute time
+  printf("IKJ Blocked: Time for matrix multiplication %6.2f seconds\n", time);
+  // Reset matrix C
+  matrixreset(C, size);
 
-  // // Test (j, k, i) order algorithm
-  // start3 = clock();                                   // Start measuring time
-  // matrixmult_jki(A, B, C, size);                      // Do the matrix multiplication
-  // time = ((clock() - start3) / 1000000.0);      // Compute time
-  // printf("JKI: Time for matrix multiplication %6.2f seconds\n", time);
+  // Test (j, k, i) order algorithm
+  start3 = clock();                                   // Start measuring time
+  matrixmult_blocked_jki(A, B, C, size, blocksize);                      // Do the matrix multiplication
+  time = ((clock() - start3) / 1000000.0);      // Compute time
+  printf("JKI Blocked: Time for matrix multiplication %6.2f seconds\n", time);
 
   /*
   printf("Matrix A:\n");
