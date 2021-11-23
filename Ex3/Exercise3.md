@@ -64,9 +64,11 @@ In order to verify the good computations of the 2 new implementation of the matr
 
 ##### b. Calculate block size
 
-An L1 cache has 32KB = 32000 Byte 
-Best blocksize <= sqrt(caches/3)
-A block size should be <100 for L1 and <500 for L2 caches with 1024KB
+A block will contain rows and collums of two matrixes and the a cache line can contain 8 values. 
+Therefore the blocksize <= sqrt(cache_size/8*2)
+
+With above formular: the good blocksize for L1 cache is 50, and 250 for L2 cache
+
 
 ##### c. Test and determine best block size
 The best value tested was 40, that executed in 28.56 seconds with -O3 flag. The test was done 
