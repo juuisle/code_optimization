@@ -29,7 +29,34 @@ In this last implementation access to the elements in matrix $A$ and $C$ are don
 
 ##### b. Implement and test the algorithms
 
+|                    | $1000 \times 1000$ | $2000 \times 2000$ | $3000 \times 3000$ | $4000 \times 4000$ |
+| ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
+| (i, j, k) (No-opt) | 3.13               | 30.05              | 124.63             | 551.34             |
+| (i, k, j) (No-opt) | 2.82               | 22.8               | 77.85              | 185.14             |
+| (j, k, i) (No-opt) | 4.01               | 39.56              | 166.29             | 803.63             |
+| (i, j, k) (-O3)    | 1.34               | 12.71              | 51.76              | 205.72             |
+| (i, k, j) (-O3)    | 0.34               | 4.64               | 21.34              | 53.80              |
+| (j, k, i) (-O3)    | 1.49               | 15.93              | 60.23              | 335.67             |
+
+<img src="D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex3\Screens\Exec_time-no-opt.JPG" alt="Exec_time-no-opt" style="zoom:60%;" />
+
+​				Figure N°1: Algorithms execution time depending on matrix size with no compiler optimizations
+
+Figure N°1 presents the results in term of execution times of the 3 implementation of the matrix multiplication algorithm with no compiler optimizations. The command used to run these test on Dione was the following: `srun -n 1 -p gpu mm 1000 &`. Choice has been made to run on Dione's GPU because every other core was busy. Figure N°2 presents the same study but with compiler optimizations, `gcc -O3`.
+
+<img src="D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex3\Screens\Exec_time-full-opt.JPG" alt="Exec_time-full-opt" style="zoom:60%;" />
+
+​		Figure N°2: Algorithms execution time depending on matrix size with maximum compiler optimizations
+
+We can easily see that the second implementation, the (I, K, J) order is by far the best as it only produces a cache miss every $4$ iterations.
+
 ##### c. Results verification
+
+In order to verify the good computations of the 2 new implementation of the matrix multiplication algorithm we implemented a simple function comparing each coefficient of the matrices. This is not really optimized but this must not be as the algorithm only have to be verified once. Figure N°3 shows the output of the verification:
+
+![result_verification_output](D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex3\Screens\result_verification_output.JPG)
+
+​					Figure N°3: Screenshot of `compareMatrices()` output
 
 ### Question N°2
 
