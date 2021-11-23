@@ -1,0 +1,5 @@
+# Ignore courses file
+Ex*/Lectures/
+
+# Ignore subject file
+Ex*/CodeOptEx*.pdf
