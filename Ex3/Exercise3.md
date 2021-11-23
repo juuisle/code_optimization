@@ -64,9 +64,12 @@ In order to verify the good computations of the 2 new implementation of the matr
 
 ##### b. Calculate block size
 
-A block size should has 4 values for L1 (4x8=32) and 128 for L2(128x8=1024)
+An L1 cache has 32KB = 32000 Byte 
+Best blocksize <= sqrt(caches/3)
+A block size should be 100 for L1 and 500 for L2 caches with 1024KB
 
 ##### c. Test and determine best block size
+
 
 ### Question N°3
 

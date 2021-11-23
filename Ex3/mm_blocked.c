@@ -79,65 +79,6 @@ int fwrite_matrix(double **M, const int rows, const int cols, char *fn, float ti
   }
 
 
-/*
-  Multiply the matrices A and B and place the result in C.
-  The matrices are assumed to be square of size N*N
-*/
-/* (i, j, k) order */
-void matrixmult_ijk(double **A, double **B, double **C, const int N)
-{
-  for(int i = 0; i < N; i++)      // For each row
-  {
-    for(int j = 0; j < N; j++)    // For each column
-    {
-      double sum = 0;             // Init local sum
-      for(int k = 0; k < N; k++)  // Add each A and B coefficients multiplication
-        sum += A[i][k] * B[k][j];
-      C[i][j] = sum;
-    }
-  }
-}
-/* (i, k, j) order */
-void matrixmult_ikj(double **A, double **B, double **C, const int N)
-{
-  for(int i = 0; i < N; i++)
-  {
-    for(int k = 0; k < N; k++)
-    {
-      double r = A[i][k];
-      for(int j = 0; j < N; j++)
-        C[i][j] += r * B[k][j];
-    }
-  }
-}
-/* (j, k, i) order */
-void matrixmult_jki(double **A, double **B, double **C, const int N)
-{
-  for(int j = 0; j < N; j++)
-  {
-    for(int k = 0; k < N; k++)
-    {
-      double r = B[k][j];
-      for(int i = 0; i < N; i++)
-        C[i][j] += A[i][k] * r;
-    }
-  }
-}
-
-/* (j, k, i) order */
-void matrixmult_jki(double **A, double **B, double **C, const int N)
-{
-  for(int j = 0; j < N; j++)
-  {
-    for(int k = 0; k < N; k++)
-    {
-      double r = B[k][j];
-      for(int i = 0; i < N; i++)
-        C[i][j] += A[i][k] * r;
-    }
-  }
-}
-
 void matrixmult_blocked(double **A, double **B, double **C, const int N, const int blocksize)
 {
   for (int i=0; i<N; i+=blocksize) 
@@ -172,7 +113,8 @@ void matrixreset(double **M, const int N)
 
 int main(int argc, char** argv)
 {
-  int size = 1000000000;          // Default matrix size is 1000*1000
+  int size = 4000;          // Default matrix size is 1000*1000
+  int blocksize = 200;
   clock_t start1, start2, start3;
 
   // Check if a matrix size is given on the command line
@@ -196,27 +138,27 @@ int main(int argc, char** argv)
     }
   }
 
-  // Test (i, j, k) order algorithm
+  // Test matrix multiplication blocked algorithm (i, j, k)
   start1 = clock();                                   // Start measuring time
-  matrixmult_ijk(A, B, C, size);                      // Do the matrix multiplication
+  matrixmult_blocked(A, B, C, size, blocksize);       // Do the matrix multiplication
   float time = ((clock() - start1) / 1000000.0);      // Compute time
-  printf("IJK: Time for matrix multiplication %6.2f seconds\n", time);
+  printf("IJK Blocked: Time for matrix multiplication %6.2f seconds\n", time);
   // Reset matrix C
   matrixreset(C, size);
 
-  // Test (i, k, j) order algorithm
-  start2 = clock();                                   // Start measuring time
-  matrixmult_ikj(A, B, C, size);                      // Do the matrix multiplication
-  time = ((clock() - start2) / 1000000.0);      // Compute time
-  printf("IKJ: Time for matrix multiplication %6.2f seconds\n", time);
-  // Reset matrix C
-  matrixreset(C, size);
+  // // Test (i, k, j) order algorithm
+  // start2 = clock();                                   // Start measuring time
+  // matrixmult_ikj(A, B, C, size);                      // Do the matrix multiplication
+  // time = ((clock() - start2) / 1000000.0);      // Compute time
+  // printf("IKJ: Time for matrix multiplication %6.2f seconds\n", time);
+  // // Reset matrix C
+  // matrixreset(C, size);
 
-  // Test (j, k, i) order algorithm
-  start3 = clock();                                   // Start measuring time
-  matrixmult_jki(A, B, C, size);                      // Do the matrix multiplication
-  time = ((clock() - start3) / 1000000.0);      // Compute time
-  printf("JKI: Time for matrix multiplication %6.2f seconds\n", time);
+  // // Test (j, k, i) order algorithm
+  // start3 = clock();                                   // Start measuring time
+  // matrixmult_jki(A, B, C, size);                      // Do the matrix multiplication
+  // time = ((clock() - start3) / 1000000.0);      // Compute time
+  // printf("JKI: Time for matrix multiplication %6.2f seconds\n", time);
 
   /*
   printf("Matrix A:\n");
