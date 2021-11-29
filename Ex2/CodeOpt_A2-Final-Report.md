@@ -23,7 +23,7 @@ gcov -b -c mm.c
 more mm.c.gcov
 ````
 
-<img src="D:\Zbeul\INSA\5 EII - Abo\S9\Code Optimization\Ex2\screens\gcov_behavior_3for_loops.JPG" alt="gcov_behavior_3for_loops" style="zoom:75%;" />
+<img src="D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex2\screens\gcov_behavior_3for_loops.JPG" alt="gcov_behavior_3for_loops" style="zoom:75%;" />
 
 ​         		Figure N°1: Screenshot of *mm.c.gcov* Matrices multiplication algorithm analysis
 
@@ -36,7 +36,7 @@ If we look at **Gcov** output and focus more specifically on our matrices multip
 
 #### Question N°2
 
-<img src="D:\Zbeul\INSA\5 EII - Abo\S9\Code Optimization\Ex2\screens\Form-a_branch_prediction.JPG" alt="Form-a_branch_prediction" style="zoom: 60%;" />
+<img src="D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex2\screens\Form-a_branch_prediction.JPG" alt="Form-a_branch_prediction" style="zoom: 60%;" />
 
 Figure N°2: *Form.docx* filled with the branch predictions for array $A = \{-1, 2, -3, 4, -5, 6, -7, 8, -9, 10\}$
 
@@ -46,7 +46,7 @@ $30\%$ may seem a consequent number of mispredictions, but if the array was bigg
 
 As you can see I miss-read the checked condition and filled the doc for the condition $X[i] > 0$ and not $\leq$, I only realized that when reading the Model solution on Moodle. Fortunately, it doesn't change too much for the array $A$ as it is a "1 on 2" pattern so I choose to not modify my first answer.
 
-<img src="D:\Zbeul\INSA\5 EII - Abo\S9\Code Optimization\Ex2\screens\Form-b_branch_prediction.JPG" alt="Form-b_branch_prediction" style="zoom:60%;" />
+<img src="D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex2\screens\Form-b_branch_prediction.JPG" alt="Form-b_branch_prediction" style="zoom:60%;" />
 
 Figure N°3: *Form.docx* filled with the branch predictions for array $B = \{1, 2, 3, 4, -5, -6, -7, -8, -9, -10\}$
 
@@ -75,7 +75,7 @@ void minmax_ternary(int a[], int b[], int n)
 
 This solution was presented in the *Ex2ModelSolution.pdf* on Moodle. The purpose of this code is to replace the `if()then{}` statement with ternary conditions which can be executed as the assembler `cmov` instruction which is a non-branching instruction.
 
-![Non-branching_constructs](D:\Zbeul\INSA\5 EII - Abo\S9\Code Optimization\Ex2\screens\Non-branching_constructs_ternary.JPG)
+![Non-branching_constructs](D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex2\screens\Non-branching_constructs_ternary.JPG)
 
 ​         			Figure N°4: Screenshot of the minmax algorithm using ternary conditions
 
@@ -95,7 +95,7 @@ void minmax_mask(int a[], int b[], int n)
 }
 ````
 
-![Non-branching_constructs_mask](D:\Zbeul\INSA\5 EII - Abo\S9\Code Optimization\Ex2\screens\Non-branching_constructs_mask.JPG)
+![Non-branching_constructs_mask](D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex2\screens\Non-branching_constructs_mask.JPG)
 
 ​         			Figure N°5: Screenshot of the minmax algorithm using mask
 
