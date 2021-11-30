@@ -8,27 +8,25 @@
 
 ![Filled_form](D:\Zbeul\INSA\5 EII - Abo\S9\code_optimization\Ex4\Screens\Filled_form.JPG)
 
-​			Figure N°1: Screenshot of *Form.docx* filled with 6-bit floating-point format based on the IEEE standard
+​			Figure N°1: Screenshot of *Form.docx* filled with 6-bits floating-point format based on the IEEE standard
 
 #### Question N°2
 
-- Original number: -275.875
+Original number: -275.875
 
-- Convert its positive version in classic binary:  $275 = 256 + 16 + 2 + 1$   and $0.875 = 0.5 + 0.25 + 0.125$ => $275.875 = 100010011.111_2 \times 2^0$
-- Normalize it: $275.875 = 1.00010011111_2 \times 2^8$
-- Compute the exponent: $E = 8+127 = 135 = 128 + 4 + 2 + 1 = 10000111_2$ 
-- Compute the mantissa (drop the leading 1-bit and fill with insignificant 0-bits): $f = 0001001111 1000000000 000$ 
-- Don't forget the sign bit: $1$ for negative numbers
+1. Convert its positive version in classic binary:  $275 = 256 + 16 + 2 + 1$   and $0.875 = 0.5 + 0.25 + 0.125$ => $275.875 = 100010011.111_2 \times 2^0$
+2. Normalize it: $275.875 = 1.00010011111_2 \times 2^8$
+3. Compute the exponent: $E = 8+127 = 135 = 128 + 4 + 2 + 1 = 10000111_2$
+4. Compute the mantissa (drop the leading 1-bit and fill with insignificant 0-bits): $f = 0001001111 1\space000000000 000$ 
+5. Don't forget the sign bit: $S = 1$ for negative numbers
 
 Result: $1 \space 10000111 \space 0001001111 1000000000 000$
 
 If we verify our result with the formula $(-1)^S \times 1.f \times 2^{E-127}$ we get:
 
-$(-1)^1 \times 1. \times 2^{8} = -275.875$
+$(-1)^1 \times 1.0776367188 \times 2^{8} = -275.875$
 
--4 -7 -8 -9 -10 -11 
-
-#### Question 3
+#### Question N°3
 
 The smallest single-precision floating-point value $X.0$ for which $X+1.0f = X$ is  $X.0 = 16777216.0 = 2^{24}$. This makes sense because in IEEE-754 the mantissa is only made of 23 bits, so whenever we hit $16777216$ we don't have any more digits to encode this $1.0f$ increase. Therefore, in IEEE-754 the next number after $16777216$ is $16777218$.
 
@@ -38,7 +36,7 @@ It's possible to deduce that with a pen and some paper but I was lazy and wrote 
 
 ​																Figure N°2: *smallest_float.c* output
 
-#### Question 4
+#### Question N°4
 
 ````C
 int main()
@@ -68,16 +66,19 @@ We can see that the only result corresponding to the "answer" is `sum2`. This is
 
 `sum3` is a bit more tricky, I would say that the slight difference in the result comes from the fact that we didn't specify that $10.0$ was a float constant, so it has been encoded as with a `double` precision and then converted in a float before being multiplied which leads to the "error".
 
-### Question 5
+### Question N°5
 
-a. The program was compiled and run using following command:
-```module purge
+##### a. The program was compiled and run using following command:
+
+````bash
+module purge
 module load OpenBLAS
 make mm_blas
-srun -N 1 mm_blas 4000```
+srun -N 1 mm_blas 4000
+````
 
 The results were correct, the matrix multiplication with BLAS library produces the same results as the other algorithms that were implemented previously.
-The table below shows the results of this algorithm compared to previous implementations. For matrix multiplication with blocks, the block sizes that are chosen for the comparison were 40 and 250
+The table below shows the execution time of this algorithm compared to previous implementations. For matrix multiplication with blocks, the block sizes that are chosen for the comparison were 40 and 250.
 
 |    with -O3 flag   | $1000 \times 1000$ | $2000 \times 2000$ | $3000 \times 3000$ | $4000 \times 4000$ |
 | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
@@ -92,13 +93,13 @@ The table below shows the results of this algorithm compared to previous impleme
 | (j, k, i) (bs 250) | 0.93               | 10.24              | 25.59              | 100.19             |
 | mm_blas            | 0.08               | 0.40               | 1.18               | 2.71               |
 
-b. Calculate how many floating-point operations per second (FLOPS) was achieved
+##### b. Calculate how many floating-point operations per second (FLOPS) was achieved
 
-According to the source code, BLAS xgemm calculates C = alpha*A * B + beta*C, where A, B, and C are 2D matrices
-and alpha and beta are scalar values. There are 4 floating-point operations, 3 multiplication and 1 addition.
-The matrix multiplication algorithm has three nested loops, with increment values from 0 to 1000. Therefore:
+According to the source code, BLAS xgemm calculates $C = \alpha*A * B + \beta*C$, where $A$, $B$, and $C$ are 2D matrices
+and $\alpha$ and $\beta$ are scalar values. There are 4 floating-point operations, 3 multiplication and 1 addition.
+For a matrix size $N = 1000$, the matrix multiplication algorithm has three nested loops, with increment values from 0 to 1000. Therefore:
 
-The number of floating-point operations executed is 4*1000*1000*1000 = 4*10^9
-The measured time for the optimized program using OpenBLAS library: 0.08 s
+The number of floating-point operations executed is $4\space1000\space1000\space1000 = 4*10^9$.
+The measured time for the optimized program using OpenBLAS library: 0.08 s.
 
-The floating-point operations per second (FLOPS) is 50 * 10^9
+The floating-point operations per second (FLOPS) is $50 \times 10^9$.
