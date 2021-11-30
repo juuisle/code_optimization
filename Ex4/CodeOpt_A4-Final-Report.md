@@ -67,3 +67,38 @@ We can see that the only result corresponding to the "answer" is `sum2`. This is
 `sum1` is easy to explain why it is that different from `sum2`, we proceed via 10 additions leading to 9 temporary results, each rounded. For example, the second computation should give us $0.2$, but in the binary  representation $0.2$ is encoded as  $0.00110011[0011]_2$  ... if we had an infinite numbers of bits which we do not. Therefore,  $0.2$ is rounded and introduces a first error in our result.
 
 `sum3` is a bit more tricky, I would say that the slight difference in the result comes from the fact that we didn't specify that $10.0$ was a float constant, so it has been encoded as with a `double` precision and then converted in a float before being multiplied which leads to the "error".
+
+### Question 5
+
+a. The program was compiled and run using following command:
+```module purge
+module load OpenBLAS
+make mm_blas
+srun -N 1 mm_blas 4000```
+
+The results was correct, the matrix multiplication with BLAS library produces the same results as the other algorithms that were implemented previously.
+The table below shows the results of this algorithm compare to previous implementations. For matrix multiplication with blocks, the blocksizes that are chosen for the comparation were 40 and 250
+
+|    with -O3 flag   | $1000 \times 1000$ | $2000 \times 2000$ | $3000 \times 3000$ | $4000 \times 4000$ |
+| ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
+| (i, j, k)          | 1.34               | 12.71              | 51.76              | 205.72             |
+| (i, k, j)          | 0.34               | 4.64               | 21.34              | 53.80              |
+| (j, k, i)          | 1.49               | 15.93              | 60.23              | 335.67             |
+| (i, j, k) (bs 40)  | 0.92               | 7.01               | 23.77              | 56.26              |
+| (i, k, j) (bs 40)  | 0.35               | 3.00               | 10.37              | 24.81              |
+| (j, k, i) (bs 40)  | 0.86               | 7.00               | 23.68              | 58.18              |
+| (i, j, k) (bs 250) | 1.12               | 8.52               | 28.19              | 69.07              |
+| (i, k, j) (bs 250) | 0.31               | 2.49               | 8.41               | 20.04              |
+| (j, k, i) (bs 250) | 0.93               | 10.24              | 25.59              | 100.19             |
+| mm_blas            | 0.08               | 0.40               | 1.18               | 2.71               |
+
+b. Calculate how many floating-point operations per second (FLOPS) was achieved
+
+According to the source code, BLAS xgemm calculates C = alpha*A * B + beta*C, where A, B and C are 2D matrices
+and alpha and beta are scalar values. There are 4 floating-point operations, 3 multipication and 1 addition.
+The matrix multiplication algorithm has three nested loops, with increment values from 0 to 1000. Therefore:
+
+The number of floating point operations executed is 4*1000*1000*1000 = 4*10^9
+The measured time for the optimized program using OpenBLAS librabry: 0.08 s
+
+The floating-point operations per second (FLOPS) is: 50 * 10^9
