@@ -8,7 +8,6 @@ The assignment is about understanding the floating-point computations and doing 
 ### Question N°1
 
 ![Filled_form](Screens/Filled_form.JPG)
-
 ​			Figure N°1: Screenshot of *Form.docx* filled with 6-bits floating-point format based on the IEEE standard
 
 #### Question N°2
