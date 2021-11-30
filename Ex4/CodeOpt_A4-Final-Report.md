@@ -76,8 +76,8 @@ module load OpenBLAS
 make mm_blas
 srun -N 1 mm_blas 4000```
 
-The results was correct, the matrix multiplication with BLAS library produces the same results as the other algorithms that were implemented previously.
-The table below shows the results of this algorithm compare to previous implementations. For matrix multiplication with blocks, the blocksizes that are chosen for the comparation were 40 and 250
+The results were correct, the matrix multiplication with BLAS library produces the same results as the other algorithms that were implemented previously.
+The table below shows the results of this algorithm compared to previous implementations. For matrix multiplication with blocks, the block sizes that are chosen for the comparison were 40 and 250
 
 |    with -O3 flag   | $1000 \times 1000$ | $2000 \times 2000$ | $3000 \times 3000$ | $4000 \times 4000$ |
 | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
@@ -94,11 +94,11 @@ The table below shows the results of this algorithm compare to previous implemen
 
 b. Calculate how many floating-point operations per second (FLOPS) was achieved
 
-According to the source code, BLAS xgemm calculates C = alpha*A * B + beta*C, where A, B and C are 2D matrices
-and alpha and beta are scalar values. There are 4 floating-point operations, 3 multipication and 1 addition.
+According to the source code, BLAS xgemm calculates C = alpha*A * B + beta*C, where A, B, and C are 2D matrices
+and alpha and beta are scalar values. There are 4 floating-point operations, 3 multiplication and 1 addition.
 The matrix multiplication algorithm has three nested loops, with increment values from 0 to 1000. Therefore:
 
-The number of floating point operations executed is 4*1000*1000*1000 = 4*10^9
-The measured time for the optimized program using OpenBLAS librabry: 0.08 s
+The number of floating-point operations executed is 4*1000*1000*1000 = 4*10^9
+The measured time for the optimized program using OpenBLAS library: 0.08 s
 
-The floating-point operations per second (FLOPS) is: 50 * 10^9
+The floating-point operations per second (FLOPS) is 50 * 10^9
