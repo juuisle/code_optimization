@@ -68,7 +68,7 @@ void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, doub
     const double mindist  = 0.0001;
     // Arrays of force values to store result of the computation
     double *fx = (double *) calloc(N, sizeof(double));
-    double *fy = (double *) calloc(Y, sizeof(double));
+    double *fy = (double *) calloc(N, sizeof(double));
 
     // For every bodies
     for (int i = 0; i < N; i++)
