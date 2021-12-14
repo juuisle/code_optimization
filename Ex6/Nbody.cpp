@@ -9,6 +9,9 @@
      (in this example it is in the current directory ./ )
 */
 
+// include VCL library
+#include "vectorclass.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -52,6 +55,71 @@ void ComputeForce(int N, double *X, double *Y, double *mass, double *Fx, double 
     }
 }
 
+/* Computes forces between bodies using VCL library*/
+void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, double *Fy)
+{
+    // Using double precision type: let's use 256-bit vector with 4 doubles (AVX minimum instruction set)
+    const int vecLen = 4; // 256-bit AVX, double data type
+
+    // Declare vectors
+    Vec4d Xvec, Yvec, Mvec, Fxvec, Fyvec;
+
+    // Minimal distance of two bodies of being in interaction
+    const double mindist  = 0.0001;
+    // Arrays of force values to store result of the computation
+    double *fx[n] = (double *) calloc(N, sizeof(double));
+    double *fy[y] = (double *) calloc(N, sizeof(double));
+
+    // For every bodies
+    for (int i = 0; i < N; i++)
+    {
+        // Take the x, y, and mass values from one particle Pi
+        Vec4d XvecI = X[i];      // Duplicate Xi to vector
+        Vec4d YvecI = Y[i];      // Duplicate Yi to vector
+        Vec4d MvecI = mass[i];   // Duplicate MASSi to vector
+
+        // For every possible vectors (nbbodies / veclen)
+        for (int j = 0; j < N/veclen; j++)
+        {
+            if (i != j)
+            {
+                // Distance between points i and j
+                double r = dist(X[i], Y[i], X[j], Y[j]);
+                if (r > mindist)
+                {
+                    double r3 = pow(r, 3);
+
+                    // Load vectors
+                    Xvec.load  (&X[i]);             // Load X vector
+                    Yvec.load  (&Y[i]);             // Load Y vector
+                    Mvec.load  (&mass[i]);          // Load mass vector
+
+                    // Compute the `veclen` force values for bodie i
+                    Fxvec = G * MvecI * Mvec * (Xvec - XvecI) / r3;
+                    Fyvec = G * MvecI * Mvec * (Yvec - YvecI) / r3;
+
+                    // Store these values
+                    Fxvec.store(&fx[i*vecLen]);
+                    Fyvec.store(&fy[i*vecLen]);
+                }
+            }
+        }
+
+        // Sum all the forces that the particle pi experiences from all other particles
+        double fxSum = 0.0; double fySum = 0.0;
+        for (int j = 0; j < N; j++)
+        {
+            fxSum += fx[i];
+            fySum += fy[i];
+        }
+        // Store the global force in Fx and Fy
+        Fx[i] = fxSum;
+        Fy[i] = fySum;
+    }
+
+    // Free...
+    free(fx); free(fy);
+}
 
 int main(int argc, char **argv)
 {
@@ -155,6 +223,10 @@ int main(int argc, char **argv)
     double pos0_finaly = Y_old[0];
     printf("Original pos %3.8f %3.8f\n", pos0x, pos0y);
     printf("Final pos    %3.8f %3.8f\n", pos0_finalx, pos0_finaly);
+
+    // Free ...
+    free(mass); free(X); free(Y); free(X_old); free(Y_old);
+    free(Vx); free(Vy); free(Fx); free(Fy);
 
     exit(0);
 }
