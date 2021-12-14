@@ -169,7 +169,7 @@ int main(int argc, char **argv)
     double pos0y = Y_old[0];
 
     // Compute the initial forces that we get
-    ComputeForce(N, X_old, Y_old, mass, Fx, Fy);
+    ComputeForceVCL(N, X_old, Y_old, mass, Fx, Fy);
 
     // Set up the velocity vectors caused by initial forces
     for(int i = 0; i < N; i++)
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
         }
 
         /* Calculate forces for the new positions */
-        ComputeForce(N, X_old, Y_old, mass, Fx, Fy);
+        ComputeForceVCL(N, X_old, Y_old, mass, Fx, Fy);
 
         /* Update velocities of bodies */
         for (int i = 0; i < N; i++)
