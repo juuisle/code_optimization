@@ -109,8 +109,8 @@ void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, doub
         double fxSum = 0.0; double fySum = 0.0;
         for (int j = 0; j < N; j++)
         {
-            fxSum += fx[i];
-            fySum += fy[i];
+            fxSum += Fx[i];
+            fySum += Fy[i];
         }
         // Store the global force in Fx and Fy
         Fx[i] = fxSum;
