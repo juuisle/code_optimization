@@ -67,8 +67,8 @@ void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, doub
     // Minimal distance of two bodies of being in interaction
     const double mindist  = 0.0001;
     // Arrays of force values to store result of the computation
-    double *fx[n] = (double *) calloc(N, sizeof(double));
-    double *fy[y] = (double *) calloc(N, sizeof(double));
+    double *fx[N] = (double *) calloc(N, sizeof(double));
+    double *fy[Y] = (double *) calloc(N, sizeof(double));
 
     // For every bodies
     for (int i = 0; i < N; i++)
@@ -79,7 +79,7 @@ void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, doub
         Vec4d MvecI = mass[i];   // Duplicate MASSi to vector
 
         // For every possible vectors (nbbodies / veclen)
-        for (int j = 0; j < N/veclen; j++)
+        for (int j = 0; j < N/vecLen; j++)
         {
             if (i != j)
             {
