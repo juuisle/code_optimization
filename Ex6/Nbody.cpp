@@ -28,7 +28,6 @@ double dist(double px, double py, double qx, double qy)
     // Could also be written as sqrt( (px-qx)*(px-qx) + (py-qy)*(py-qy) )
 }
 
-
 /* Computes forces between bodies */
 void ComputeForce(int N, double *X, double *Y, double *mass, double *Fx, double *Fy)
 {
@@ -55,20 +54,24 @@ void ComputeForce(int N, double *X, double *Y, double *mass, double *Fx, double 
     }
 }
 
-/* Computes forces between bodies using VCL library*/
+// Distance between points with coordinates (px,py) and (qx,qy) using VCL library
+Vec4d distVCL(Vec4d px, Vec4d py, Vec4d qx, Vec4d qy)
+{
+  return sqrt( (px-qx)*(px-qx) + (py-qy)*(py-qy) );
+}
+
+/*Computes forces between bodies using VCL library*/
 void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, double *Fy)
 {
+    // Minimal distance of two bodies of being in interaction
+    const double minDist  = 0.0001;
+    // Gravitational constant (should be e-10 but modified)
+    const double G  = 6.67259e-7;
     // Using double precision type: let's use 256-bit vector with 4 doubles (AVX minimum instruction set)
     const int vecLen = 4; // 256-bit AVX, double data type
 
     // Declare vectors
     Vec4d Xvec, Yvec, Mvec, Fxvec, Fyvec;
-
-    // Minimal distance of two bodies of being in interaction
-    const double mindist  = 0.0001;
-    // Arrays of force values to store result of the computation
-    double *fx[n] = (double *) calloc(N, sizeof(double));
-    double *fy[y] = (double *) calloc(N, sizeof(double));
 
     // For every bodies
     for (int i = 0; i < N; i++)
@@ -78,47 +81,33 @@ void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, doub
         Vec4d YvecI = Y[i];      // Duplicate Yi to vector
         Vec4d MvecI = mass[i];   // Duplicate MASSi to vector
 
-        // For every possible vectors (nbbodies / veclen)
-        for (int j = 0; j < N/veclen; j++)
+        // Set force to zero
+        Fx[i] = Fy[i] = 0.0;
+
+        // For every possible vectors (nbbodies / veclen) [0 4 8 ... N]
+        for (int j = 0; j < N; j += vecLen)
         {
-            if (i != j)
-            {
-                // Distance between points i and j
-                double r = dist(X[i], Y[i], X[j], Y[j]);
-                if (r > mindist)
-                {
-                    double r3 = pow(r, 3);
+            // Load the vectors with other particules information
+            Xvec.load(&X[j]);
+            Yvec.load(&Y[j]);
+            Mvec.load(&mass[j]);
+            // Reinit force vectors
+            Fxvec = 0.0; Fyvec = 0,0;
 
-                    // Load vectors
-                    Xvec.load  (&X[i]);             // Load X vector
-                    Yvec.load  (&Y[i]);             // Load Y vector
-                    Mvec.load  (&mass[i]);          // Load mass vector
+            // Compute distance between points i and j, store result in a vector
+            Vec4d r_temp = distVCL(otherX, otherY, thisX, thisY);
+            // Check if r is 0.0 (particle pair), or too small. If that's the case replace it by 1.0
+            Vec4d r = select(r_temp > minDist, r_temp, 1.0);
 
-                    // Compute the `veclen` force values for bodie i
-                    Fxvec = G * MvecI * Mvec * (Xvec - XvecI) / r3;
-                    Fyvec = G * MvecI * Mvec * (Yvec - YvecI) / r3;
+            // Calculate forces from the other particles (if r too small forces are 0)
+            vecFx = select(r_temp > minDist, G * MvecI * Mvec * (Xvec-XvecI) / pow(r, 3), 0.0);
+            vecFy = select(r_temp > minDist, G * MvecI * Mvec * (Yvec-YvecI) / pow(r, 3), 0.0);
 
-                    // Store these values
-                    Fxvec.store(&fx[i*vecLen]);
-                    Fyvec.store(&fy[i*vecLen]);
-                }
-            }
+            // Add these forces together and store
+            Fx[i] += horizontal_add(Fxvec);
+            Fy[i] += horizontal_add(Fyvec);
         }
-
-        // Sum all the forces that the particle pi experiences from all other particles
-        double fxSum = 0.0; double fySum = 0.0;
-        for (int j = 0; j < N; j++)
-        {
-            fxSum += fx[i];
-            fySum += fy[i];
-        }
-        // Store the global force in Fx and Fy
-        Fx[i] = fxSum;
-        Fy[i] = fySum;
     }
-
-    // Free...
-    free(fx); free(fy);
 }
 
 int main(int argc, char **argv)
