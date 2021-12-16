@@ -54,19 +54,8 @@ void ComputeForce(int N, double *X, double *Y, double *mass, double *Fx, double 
     }
 }
 
-// Distance between points with coordinates (px,py) and (qx,qy) using VCL library
-Vec4d distVCL(Vec4d px, Vec4d py, Vec4d qx, Vec4d qy)
-{
-  return sqrt( (px-qx)*(px-qx) + (py-qy)*(py-qy) );
-}
-
-/*Computes forces between bodies using VCL library*/
 void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, double *Fy)
 {
-    // Minimal distance of two bodies of being in interaction
-    const double minDist  = 0.0001;
-    // Gravitational constant (should be e-10 but modified)
-    const double G  = 6.67259e-7;
     // Using double precision type: let's use 256-bit vector with 4 doubles (AVX minimum instruction set)
     const int vecLen = 4; // 256-bit AVX, double data type
 
@@ -87,25 +76,6 @@ void ComputeForceVCL(int N, double *X, double *Y, double *mass, double *Fx, doub
         // For every possible vectors (nbbodies / veclen) [0 4 8 ... N]
         for (int j = 0; j < N; j += vecLen)
         {
-            // Load the vectors with other particules information
-            Xvec.load(&X[j]);
-            Yvec.load(&Y[j]);
-            Mvec.load(&mass[j]);
-            // Reinit force vectors
-            Fxvec = 0.0; Fyvec = 0,0;
-
-            // Compute distance between points i and j, store result in a vector
-            Vec4d r_temp = distVCL(otherX, otherY, thisX, thisY);
-            // Check if r is 0.0 (particle pair), or too small. If that's the case replace it by 1.0
-            Vec4d r = select(r_temp > minDist, r_temp, 1.0);
-
-            // Calculate forces from the other particles (if r too small forces are 0)
-            vecFx = select(r_temp > minDist, G * MvecI * Mvec * (Xvec-XvecI) / pow(r, 3), 0.0);
-            vecFy = select(r_temp > minDist, G * MvecI * Mvec * (Yvec-YvecI) / pow(r, 3), 0.0);
-
-            // Add these forces together and store
-            Fx[i] += horizontal_add(Fxvec);
-            Fy[i] += horizontal_add(Fyvec);
         }
     }
 }
@@ -158,7 +128,7 @@ int main(int argc, char **argv)
     double pos0y = Y_old[0];
 
     // Compute the initial forces that we get
-    ComputeForce(N, X_old, Y_old, mass, Fx, Fy);
+    ComputeForceVCL(N, X_old, Y_old, mass, Fx, Fy);
 
     // Set up the velocity vectors caused by initial forces
     for(int i = 0; i < N; i++)
@@ -188,7 +158,7 @@ int main(int argc, char **argv)
         }
 
         /* Calculate forces for the new positions */
-        ComputeForce(N, X_old, Y_old, mass, Fx, Fy);
+        ComputeForceVCL(N, X_old, Y_old, mass, Fx, Fy);
 
         /* Update velocities of bodies */
         for (int i = 0; i < N; i++)
