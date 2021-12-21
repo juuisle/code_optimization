@@ -43,115 +43,40 @@ Y[i] = alpha*X[i] + Y[i];
 
 b. Compile the saxpy procedure with full optimizations (-O3) and look at the generated assembly language code.
 
-Here is the assembly code generated:
 
-```assembly
-saxpyo3.o:     file format elf64-x86-64
-
-Disassembly of section .text:
-
-0000000000000000 <saxpy>:
-/*
-  Single-precision A*X plus Y, Y = alpha*X+Y
-*/
-
-void saxpy(int n, float alpha, float *X, float *Y) {
-  for (int i=0; i<n; i++)
-   0:   85 ff                   test   %edi,%edi
-   2:   0f 8e fb 00 00 00       jle    103 <saxpy+0x103>
-   8:   48 8d 42 10             lea    0x10(%rdx),%rax
-   c:   48 39 c6                cmp    %rax,%rsi
-   f:   48 8d 46 10             lea    0x10(%rsi),%rax
-  13:   0f 93 c1                setae  %cl
-  16:   48 39 c2                cmp    %rax,%rdx
-  19:   0f 93 c0                setae  %al
-  1c:   08 c1                   or     %al,%cl
-  1e:   0f 84 bc 00 00 00       je     e0 <saxpy+0xe0>
-  24:   83 ff 05                cmp    $0x5,%edi
-  27:   0f 86 b3 00 00 00       jbe    e0 <saxpy+0xe0>
-  2d:   0f 28 e0                movaps %xmm0,%xmm4
-  30:   41 89 f9                mov    %edi,%r9d
-  33:   31 c0                   xor    %eax,%eax
-  35:   41 c1 e9 02             shr    $0x2,%r9d
-    Y[i] = alpha*X[i] + Y[i];
-  39:   0f 57 db                xorps  %xmm3,%xmm3
-  3c:   0f c6 e4 00             shufps $0x0,%xmm4,%xmm4
-  40:   46 8d 04 8d 00 00 00    lea    0x0(,%r9,4),%r8d
-  47:   00
-  for (int i=0; i<n; i++)
-  48:   31 c9                   xor    %ecx,%ecx
-    Y[i] = alpha*X[i] + Y[i];
-  4a:   0f 28 cb                movaps %xmm3,%xmm1
-  4d:   0f 28 d3                movaps %xmm3,%xmm2
-  50:   83 c1 01                add    $0x1,%ecx
-  53:   0f 12 0c 06             movlps (%rsi,%rax,1),%xmm1
-  57:   0f 12 14 02             movlps (%rdx,%rax,1),%xmm2
-  5b:   0f 16 4c 06 08          movhps 0x8(%rsi,%rax,1),%xmm1
-  60:   0f 16 54 02 08          movhps 0x8(%rdx,%rax,1),%xmm2
-  65:   0f 59 cc                mulps  %xmm4,%xmm1
-  68:   0f 58 ca                addps  %xmm2,%xmm1
-  6b:   0f 13 0c 02             movlps %xmm1,(%rdx,%rax,1)
-  6f:   0f 17 4c 02 08          movhps %xmm1,0x8(%rdx,%rax,1)
-  74:   48 83 c0 10             add    $0x10,%rax
-  78:   44 39 c9                cmp    %r9d,%ecx
-  7b:   72 cd                   jb     4a <saxpy+0x4a>
-  7d:   44 39 c7                cmp    %r8d,%edi
-  80:   0f 84 7d 00 00 00       je     103 <saxpy+0x103>
-  86:   49 63 c8                movslq %r8d,%rcx
-  89:   f3 0f 10 0c 8e          movss  (%rsi,%rcx,4),%xmm1
-  8e:   48 8d 04 8a             lea    (%rdx,%rcx,4),%rax
-  for (int i=0; i<n; i++)
-  92:   41 8d 48 01             lea    0x1(%r8),%ecx
-    Y[i] = alpha*X[i] + Y[i];
-  96:   f3 0f 59 c8             mulss  %xmm0,%xmm1
-  for (int i=0; i<n; i++)
-  9a:   39 cf                   cmp    %ecx,%edi
-    Y[i] = alpha*X[i] + Y[i];
-  9c:   f3 0f 58 08             addss  (%rax),%xmm1
-  a0:   f3 0f 11 08             movss  %xmm1,(%rax)
-  for (int i=0; i<n; i++)
-  a4:   7e 5d                   jle    103 <saxpy+0x103>
-    Y[i] = alpha*X[i] + Y[i];
-  a6:   48 63 c9                movslq %ecx,%rcx
-  for (int i=0; i<n; i++)
-  a9:   41 83 c0 02             add    $0x2,%r8d
-    Y[i] = alpha*X[i] + Y[i];
-  ad:   f3 0f 10 0c 8e          movss  (%rsi,%rcx,4),%xmm1
-  b2:   48 8d 04 8a             lea    (%rdx,%rcx,4),%rax
-  for (int i=0; i<n; i++)
-  b6:   44 39 c7                cmp    %r8d,%edi
-    Y[i] = alpha*X[i] + Y[i];
-  b9:   f3 0f 59 c8             mulss  %xmm0,%xmm1
-  bd:   f3 0f 58 08             addss  (%rax),%xmm1
-  c1:   f3 0f 11 08             movss  %xmm1,(%rax)
-  for (int i=0; i<n; i++)
-  c5:   7e 41                   jle    108 <saxpy+0x108>
-    Y[i] = alpha*X[i] + Y[i];
-  c7:   4d 63 c0                movslq %r8d,%r8
-  ca:   f3 42 0f 59 04 86       mulss  (%rsi,%r8,4),%xmm0
-  d0:   4a 8d 04 82             lea    (%rdx,%r8,4),%rax
-  d4:   f3 0f 58 00             addss  (%rax),%xmm0
-  d8:   f3 0f 11 00             movss  %xmm0,(%rax)
-  dc:   c3                      retq
-  dd:   0f 1f 00                nopl   (%rax)
-  for (int i=0; i<n; i++)
-  e0:   31 c0                   xor    %eax,%eax
-  e2:   66 0f 1f 44 00 00       nopw   0x0(%rax,%rax,1)
-    Y[i] = alpha*X[i] + Y[i];
-  e8:   f3 0f 10 0c 86          movss  (%rsi,%rax,4),%xmm1
-  ed:   f3 0f 59 c8             mulss  %xmm0,%xmm1
-  f1:   f3 0f 58 0c 82          addss  (%rdx,%rax,4),%xmm1
-  f6:   f3 0f 11 0c 82          movss  %xmm1,(%rdx,%rax,4)
-  fb:   48 83 c0 01             add    $0x1,%rax
-  for (int i=0; i<n; i++)
-  ff:   39 c7                   cmp    %eax,%edi
- 101:   7f e5                   jg     e8 <saxpy+0xe8>
- 103:   f3 c3                   repz retq
- 105:   0f 1f 00                nopl   (%rax)
- 108:   f3 c3                   repz retq
+```console
+dione:~$ gcc -O3 -c -fopt-info saxpy.c
+saxpy.c:7:3: optimized: loop vectorized using 16 byte vectors
+saxpy.c:7:3: optimized:  loop versioned for vectorization because of possible aliasing
+saxpy.c:7:3: optimized: loop with 2 iterations completely unrolled (header execution count 49959011)
 ```
 
-The O3 optimization level, which is the highest one, performs the serious optimizing operation. In the above assembly code, the loop has been unrolled, in addition to that, function inlining and automatic vectorization have been performed.
+
+The O3 optimization level, which is the highest one, performs more optimizing operation. In the above assembly code, the loop has been vectorized and unrolled as below. 
+
+```assembly
+40:   0f 10 0c 06             movups (%rsi,%rax,1),%xmm1
+  44:   0f 10 1c 02             movups (%rdx,%rax,1),%xmm3
+  48:   0f 59 ca                mulps  %xmm2,%xmm1
+  4b:   0f 58 cb                addps  %xmm3,%xmm1
+  4e:   0f 11 0c 02             movups %xmm1,(%rdx,%rax,1)
+```
+
+```assembly
+  77:   f3 0f 59 c8             mulss  %xmm0,%xmm1
+  7b:   f3 0f 58 09             addss  (%rcx),%xmm1
+  7f:   f3 0f 11 09             movss  %xmm1,(%rcx)
+  83:   8d 48 01                lea    0x1(%rax),%ecx
+  86:   39 cf                   cmp    %ecx,%edi
+  88:   7e 5d                   jle    e7 <saxpy+0xe7>
+  8a:   48 63 c9                movslq %ecx,%rcx
+  8d:   83 c0 02                add    $0x2,%eax
+  90:   f3 0f 10 0c 8e          movss  (%rsi,%rcx,4),%xmm1
+  95:   4c 8d 04 8a             lea    (%rdx,%rcx,4),%r8
+  99:   f3 0f 59 c8             mulss  %xmm0,%xmm1
+  9d:   f3 41 0f 58 08          addss  (%r8),%xmm1
+  a2:   f3 41 0f 11 08          movss  %xmm1,(%r8)
+```
 
 c. Compile the saxpy procedure with -O2 optimization and the additional flag -mfpmath=387
 
